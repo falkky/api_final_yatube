@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class Group(models.Model):
-    title = models.CharField()
+    title = models.CharField(max_length=200)
     slug = models.SlugField()
     description = models.TextField()
 
@@ -18,7 +18,11 @@ class Post(models.Model):
     image = models.ImageField(
         upload_to='posts/', null=True, blank=True)
     group = models.ForeignKey(
-        Group, on_delete=models.SET_NULL, related_name='group'
+        Group,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='group'
     )
 
     def __str__(self):
@@ -39,6 +43,14 @@ class Follow(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='follower'
     )
-    author = models.ForeignKey(
+    following = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='following'
     )
+
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint(
+    #             fields=['user', 'following'],
+    #             name='unique_name_following'
+    #         )
+    #     ]
