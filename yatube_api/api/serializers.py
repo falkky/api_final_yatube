@@ -6,6 +6,7 @@ from posts.models import Comment, Follow, Group, Post, User
 
 
 class PostSerializer(serializers.ModelSerializer):
+    """Cериализатор для постов."""
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
@@ -15,6 +16,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Cериализатор для комментариев."""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
@@ -26,6 +28,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """Cериализатор для подписок."""
     user = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
@@ -39,6 +42,8 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Follow
+        # Валидация для проверки, чтобы на пользователя
+        # нельзя было подписаться дважды
         validators = [
             UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
@@ -48,13 +53,16 @@ class FollowSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, date):
+        """Валидация для проверки, что пользователь
+         не может подписаться сам на себя.
+         """
         if date['following'] == self.context['request'].user:
             raise serializers.ValidationError('Нельзя подписываться на себя')
         return date
 
 
 class GroupSerializer(serializers.ModelSerializer):
-
+    """Cериализатор для групп"""
     class Meta:
         fields = ('id', 'title', 'slug', 'description')
         model = Group
