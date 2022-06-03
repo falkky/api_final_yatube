@@ -1,8 +1,9 @@
+from rest_framework import mixins
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
-from .permissions import AuthorOrReadOnly, UserIsAuthAndGetPost
+from .permissions import AuthorOrReadOnly, GroupReadOnlyForAll
 from .serializers import (
     CommentSerializer,
     FollowSerializer,
@@ -10,6 +11,16 @@ from .serializers import (
     PostSerializer
 )
 from posts.models import Group, Post
+
+
+class CreateListRetrieveViewSet(mixins.CreateModelMixin,
+                                mixins.ListModelMixin,
+                                mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
+    """Кастомный класс который предоставляет
+    действия `retrieve`, `create`, `list`
+    """
+    pass
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -28,7 +39,7 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     """Представление для запросов к группам, только чтение."""
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (AuthorOrReadOnly,)
+    permission_classes = (GroupReadOnlyForAll,)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -51,10 +62,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 
-class FollowViewSet(viewsets.ModelViewSet):
+class FollowViewSet(CreateListRetrieveViewSet):
     """Представление для запросов к подпискам."""
     serializer_class = FollowSerializer
-    permission_classes = (UserIsAuthAndGetPost,)
     filter_backends = (SearchFilter,)
     search_fields = ('following__username',)
 

@@ -7,12 +7,10 @@ class AuthorOrReadOnly(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        if (
+        return (
             request.method in permissions.SAFE_METHODS
             or obj.author == request.user
-        ):
-            return True
-        return False
+        )
 
 
 class UserIsAuthAndGetPost(permissions.BasePermission):
@@ -21,6 +19,14 @@ class UserIsAuthAndGetPost(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        if request.method in ['POST', 'GET'] and request.user.is_authenticated:
-            return True
-        return False
+        return (
+            request.method in ['POST', 'GET']
+            and request.user.is_authenticated
+        )
+
+
+class GroupReadOnlyForAll(permissions.BasePermission):
+    """Даем возможность всем делать запросы на чтение"""
+
+    def has_object_permission(self, request, view, obj):
+        return request.method in permissions.SAFE_METHODS
