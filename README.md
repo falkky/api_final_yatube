@@ -32,7 +32,10 @@ python manage.py migrate
 ```
 python3 manage.py runserver
 ```
-
+Документация к API доступна в формате Redoc:
+```
+http://127.0.0.1:8000/redoc/
+```
 ## Примеры запросов к API:
 Endpoint:
 ```
@@ -75,3 +78,9 @@ POST запрос:
 "post": 0
 }
 ```
+## Используемые технологии:
+- Django
+- Django REST
+- SimpleJWT
+- Djoser
+
